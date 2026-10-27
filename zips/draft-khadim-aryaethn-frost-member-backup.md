@@ -225,7 +225,9 @@ $\mathsf{rivk}$. Ironwood uses the same Orchard-protocol keys.
 1. Decode the string as above.
 2. Reject the string if $\mathsf{sk}$ is not a valid Orchard spending key,
    that is if $\mathsf{H^{ask}}(\mathsf{sk}) = 0$, or if the signing share is
-   not the canonical encoding of a Pallas scalar.
+   not the canonical encoding of a Pallas scalar. (A group's $\mathsf{ask}$ is
+   not derived from $\mathsf{sk}$; the first check only keeps decoders in
+   agreement with the validity rule for Orchard spending keys.)
 3. Take $\mathsf{ak}$ from the viewing key. Compute $\mathsf{nk}$ and
    $\mathsf{rivk}$ under each derivation of [Derivations].
 4. If the ZIP 2005 derivation gives the viewing key's $\mathsf{nk}$ and
@@ -239,6 +241,14 @@ $\mathsf{rivk}$. Ironwood uses the same Orchard-protocol keys.
 
 A wallet SHOULD tell the user which derivation was found, and SHOULD warn when
 it is the legacy one, whose notes are not quantum recoverable.
+
+After the restore, the wallet MUST retain $\mathsf{sk}$ when the group follows
+the ZIP 2005 derivation. ZIP 2005 makes $\mathsf{qsk}$, which is derived from
+$\mathsf{sk}$, essential for recovering the group's notes once the current
+Orchard protocol is disabled [^zip-2005-usagewithfrost], and the signing
+share and viewing key alone do not give it. A wallet SHOULD also retain
+$\mathsf{sk}$ for a legacy group, since without it the member cannot export
+its string again.
 
 A restored member holds no signing nonces. It MUST generate fresh ones for its
 next signing session.
@@ -288,8 +298,9 @@ collision in the hash functions behind $\mathsf{rivk}$. A later version can
 record the derivation explicitly (see [Open issues]).
 
 **One-byte identifier.** It covers groups whose identifiers are the integers
-1 to $n$, as in Zkool. frost-client and Zafe derive 32-byte identifiers, which
-need another version (see [Open issues]).
+1 to $n$, as in Zkool and in frost-client's trusted-dealer key generation.
+frost-client's DKG and Zafe derive 32-byte identifiers, which need another
+version (see [Open issues]).
 
 **Version 1 is Zkool's payload.** Backups users already made keep working,
 and the first implementation exists today.
@@ -303,9 +314,17 @@ as discrete logarithms on the Pallas curve stay hard.
 Every string also holds $\mathsf{sk}$, which yields $\mathsf{qsk}$. ZIP 2005
 notes that "a quantum adversary may be able to steal the funds with only
 access to $\mathsf{qsk}$, which is held by every participant"
-[^zip-2005-usagewithfrost]. One leaked string therefore gives such an
-adversary what any single member already has. Wallets MUST protect the string
-at least as well as the signing share.
+[^zip-2005-usagewithfrost]. Against such an adversary the threshold gives no
+protection: one leaked string, from any member, is enough to steal the funds.
+Wallets MUST protect the string at least as well as the signing share.
+
+For the same reason, a string that is stored or sent encrypted only under
+public-key encryption based on discrete logarithms (Orchard note encryption,
+X25519, or elliptic-curve OpenPGP keys, for example) should be treated as
+exposed to an adversary who records the ciphertext now and gains a quantum
+computer later. Wallets SHOULD NOT transmit or store the string that way; a
+passphrase with a memory-hard KDF and an AEAD (see [Open issues]) does not
+have this weakness.
 
 The restore does not prove the signing share (see [Restore]). A wrong share,
 for instance one exported with the wrong sign (see [Payload, version 1]),
@@ -365,10 +384,10 @@ One member of the 2-of-3 ZIP 2005 group (byte strings in hex):
 
 # Open issues
 
-- **Identifier encoding.** frost-client derives identifiers as
+- **Identifier encoding.** frost-client's DKG derives identifiers as
   `Identifier::derive(session_id || pubkey)`, and Zafe from the vault id and
-  the member's identity key: two of the three FROST implementations use full
-  32-byte identifiers. For their groups to fit, a version 2 needs a type byte
+  the member's identity key, so groups created by either use full 32-byte
+  identifiers (frost-client's trusted dealer uses 1 to $n$). For their groups to fit, a version 2 needs a type byte
   followed by a short or a full identifier.
 - **Explicit derivation.** A version 2 could record the derivation, so a
   restore does not depend on trying each one, and a third derivation could be
