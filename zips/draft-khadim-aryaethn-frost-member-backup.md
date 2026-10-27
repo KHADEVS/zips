@@ -314,8 +314,9 @@ as discrete logarithms on the Pallas curve stay hard.
 Every string also holds $\mathsf{sk}$, which yields $\mathsf{qsk}$. ZIP 2005
 notes that "a quantum adversary may be able to steal the funds with only
 access to $\mathsf{qsk}$, which is held by every participant"
-[^zip-2005-usagewithfrost]. Against such an adversary the threshold gives no
-protection: one leaked string, from any member, is enough to steal the funds.
+[^zip-2005-usagewithfrost]. Against such an adversary the threshold may give no
+protection: one leaked string, from any member, may be enough to steal the
+funds.
 Wallets MUST protect the string at least as well as the signing share.
 
 For the same reason, a string that is stored or sent encrypted only under
