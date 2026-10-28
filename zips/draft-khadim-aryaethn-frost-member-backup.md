@@ -277,7 +277,11 @@ above, in a version 1 string.
 
 **Bech32m.** It gives a checksum that catches copy errors and a string users
 can paste or show as a QR code. An uppercase string fits the QR alphanumeric
-mode, which makes the code smaller.
+mode, which makes the code smaller. Its checksum guarantees the detection of
+any error affecting at most 4 characters only for strings of at most 90
+characters [^zip-0173]. A version 1 string is 123 characters long, so it keeps
+the 30-bit checksum without that guarantee, as unified addresses and viewing
+keys do [^zip-0316].
 
 **No network in the string.** A member's share is the same on every network
 the group lives on. The viewing key carries the network.
@@ -404,14 +408,21 @@ One member of the 2-of-3 ZIP 2005 group (byte strings in hex):
   uses, derives $\mathsf{nk}$ and $\mathsf{rivk}$ from a random $\mathsf{sk}$
   and then discards it, so version 1 cannot hold its groups. A version 2 could
   record that $\mathsf{nk}$ and $\mathsf{rivk}$ come from the viewing key,
-  leave $\mathsf{sk}$ out, and carry $\mathsf{ak}$ for the restore to check
-  against the viewing key (suggested in zcash/zips#1413). That check catches a
-  viewing key from another group, but not a different viewing key for the
-  same group. Such groups are not quantum recoverable under ZIP 2005.
-- **$\mathsf{ak}$ or the viewing key in the string**, so that a restore needs
-  only the string. For a group with no $\mathsf{sk}$, the viewing key is the
-  only source of $\mathsf{nk}$ and $\mathsf{rivk}$, so a string without it
-  restores nothing on its own.
+  leave $\mathsf{sk}$ out, and carry the viewing key itself (next item).
+  Carrying only $\mathsf{ak}$, as first suggested in zcash/zips#1413, would let
+  the restore catch a viewing key from another group, but not a different
+  viewing key for the same group. Such groups are not quantum recoverable
+  under ZIP 2005.
+- **The viewing key in the string**, so that a restore needs only the string.
+  For a group with no $\mathsf{sk}$, the viewing key is the only source of
+  $\mathsf{nk}$ and $\mathsf{rivk}$. A version 2 would carry the raw 96-byte
+  Orchard full viewing key rather than its unified encoding, so that the
+  string stays network-agnostic, and nothing outside the string is left to
+  mismatch. For a group with $\mathsf{sk}$, $\mathsf{ak}$ is enough, since
+  $\mathsf{nk}$ and $\mathsf{rivk}$ follow from $\mathsf{sk}$ and
+  $\mathsf{ak}$. A string for a group with no $\mathsf{sk}$ would be about 230
+  characters long, or 280 with a 32-byte identifier (see [Rationale] on
+  Bech32m).
 - **Passphrase profile.** An optional version encrypting the payload with a
   memory-hard KDF and an AEAD, as Zafe does for its backups.
 - **Human-readable part.** `zkfrost` is kept for compatibility with existing
@@ -425,6 +436,8 @@ One member of the 2-of-3 ZIP 2005 group (byte strings in hex):
 [^protocol-networks]: [Zcash Protocol Specification, Version 2026.7.0 [NU6.2] or later. Section 3.12: Mainnet and Testnet](protocol/protocol.pdf#networks)
 
 [^protocol-updated-orchardkeycomponents]: [Zcash Protocol Specification, Version 2026.8.0 [NU6.3]. Section 4.2.3: Orchard Key Components](protocol/nu6_3.pdf#orchardkeycomponents)
+
+[^zip-0173]: [ZIP 173: Bech32 Format](zip-0173.rst)
 
 [^zip-0312]: [ZIP 312: FROST for Spend Authorization Multisignatures](zip-0312.rst)
 
