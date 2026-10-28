@@ -72,9 +72,9 @@ group and tells the wallet which key derivation the group uses.
 Version 1 of the payload is byte-for-byte the `zkfrost` string that Zkool
 already ships, so existing backups stay valid.
 
-The string is as sensitive as the signing share it carries, and it also carries
-$\mathsf{sk}$, from which a holder can compute the group's quantum spending key
-$\mathsf{qsk}$ [^zip-2005]. It never appears on chain.
+The string is more sensitive than the signing share it carries: it also
+carries $\mathsf{sk}$, from which a holder can compute the group's quantum
+spending key $\mathsf{qsk}$ [^zip-2005]. It never appears on chain.
 
 
 # Motivation
@@ -165,8 +165,10 @@ Legacy derivation
 : $\mathsf{nk} = \mathsf{H^{nk}}(\mathsf{sk})$ and
   $\mathsf{rivk} = \mathsf{H^{rivk}}(\mathsf{sk})$, with the group verifying key
   as $\mathsf{ak}$. Zkool created groups this way before supporting ZIP 2005.
-  Because $\mathsf{ak}$ is not derived from $\mathsf{sk}$, notes received by
-  such a group are not quantum recoverable.
+  Such a group follows neither branch of § 4.2.3
+  [^protocol-updated-orchardkeycomponents]: $\mathsf{ak}$ is not derived from
+  $\mathsf{sk}$, and $\mathsf{rivk}$ does not commit to a $\mathsf{qk}$. Notes
+  received by such a group are therefore not quantum recoverable.
 
 ## Encoding
 
@@ -176,7 +178,8 @@ of Bech32m is not applied; a version 1 string is 123 characters long.
 
 Encoders MUST produce lowercase strings. Decoders MUST accept a string that is
 entirely lowercase or entirely uppercase, and MUST reject a string in mixed
-case, as Bech32m requires.
+case, as Bech32m requires. A wallet can still show the string in uppercase,
+for instance in a QR code (see [Rationale]), by converting it after encoding.
 
 The human-readable part is the same on Mainnet and Testnet, and the payload
 names no network: the network is given by the unified full viewing key used to
@@ -406,8 +409,9 @@ One member of the 2-of-3 ZIP 2005 group (byte strings in hex):
 - **Identifier encoding.** frost-client's DKG derives identifiers as
   `Identifier::derive(session_id || pubkey)`, and Zafe from the vault id and
   the member's identity key, so groups created by either use full 32-byte
-  identifiers (frost-client's trusted dealer uses 1 to $n$). For their groups to fit, a version 2 needs a type byte
-  followed by a short or a full identifier.
+  identifiers (frost-client's trusted dealer uses 1 to $n$). For their groups
+  to fit, a version 2 needs a type byte followed by a short or a full
+  identifier.
 - **Explicit derivation.** A version 2 could record the derivation, so a
   restore does not depend on trying each one, and a third derivation could be
   added without ambiguity.
