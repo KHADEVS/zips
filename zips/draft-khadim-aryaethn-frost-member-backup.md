@@ -213,6 +213,9 @@ A decoder MUST reject the string if any of the following holds:
 
 - it is not valid Bech32m, including a bad checksum, a Bech32 checksum, or
   mixed case;
+- the bits left over when converting its data part to bytes are more than 4
+  or not all zero, as ZIP 173 requires [^zip-0173]. A version 1 string leaves
+  1 bit, so each payload has only one lowercase string;
 - its human-readable part, compared case-insensitively, is not `zkfrost`;
 - the payload is not exactly 68 bytes long;
 - the format version is not $\mathtt{0x01}$;
@@ -376,17 +379,19 @@ The full set is in `draft-khadim-aryaethn-frost-member-backup/vectors.json`.
 It covers a 2-of-3 ZIP 2005 group, a 2-of-3 legacy group together with the
 ZIP 2005 viewing key built from the same $\mathsf{sk}$ and $\mathsf{ak}$ (whose
 strings restore under either key, with a different derivation), and a 3-of-5
-ZIP 2005 group; an uppercase string; thirteen strings that decoders must
-reject; and a valid string paired with another group's viewing key, which the
-restore must reject.
+ZIP 2005 group; an uppercase string; fifteen strings that decoders must
+reject, two of them for the padding rule; and a valid string paired with
+another group's viewing key, which the restore must reject.
 
 Every valid string decodes to the same fields and matches the stated
-derivation with Zkool's code, every invalid string is rejected by it, and
-every $t$-subset of members restored from their strings produces a FROST
-signature that verifies under $\mathsf{ak}$. A third decoder, with the
+derivation with Zkool's code, and every $t$-subset of members restored from
+their strings produces a FROST signature that verifies under $\mathsf{ak}$.
+Zkool's code rejects every invalid string except the two padding cases: Zkool
+6.35.0 does not check the padding bits, and decodes those two strings to the
+same fields as the valid string they come from. A third decoder, with the
 derivations written directly from BIP 350, ZIP 316 and ZIP 2005 and no Zcash
-library, gives the same results for every string, both viewing keys of each
-group, and every rejected case. With frost-client's version of `reddsa`, every
+library, gives the same results for every valid string, both viewing keys of
+each group, and the thirteen other rejected cases. With frost-client's version of `reddsa`, every
 $t$-subset also rebuilds $\mathsf{ak}$ and signs.
 
 One member of the 2-of-3 ZIP 2005 group (byte strings in hex):
