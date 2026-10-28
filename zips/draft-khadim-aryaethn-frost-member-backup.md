@@ -13,9 +13,9 @@
 
 # Terminology
 
-The key words "MUST", "MUST NOT", "SHOULD", and "MAY" in this document are to
-be interpreted as described in BCP 14 [^BCP14] when, and only when, they
-appear in all capitals.
+The key words "MUST", "MUST NOT", "SHOULD", and "SHOULD NOT" in this document
+are to be interpreted as described in BCP 14 [^BCP14] when, and only when,
+they appear in all capitals.
 
 The terms "Mainnet" and "Testnet" in this document are to be interpreted as
 defined in the Zcash protocol specification [^protocol-networks].
@@ -272,6 +272,16 @@ viewing key.
 A wallet MUST NOT put signing nonces, or any other secret beyond the fields
 above, in a version 1 string.
 
+## Storage and transmission
+
+Wallets MUST protect every member backup string at least as securely and
+reliably as $\mathsf{ask}$, as ZIP 2005 requires of $\mathsf{qsk}$
+[^zip-2005-usagewithfrost], and not merely like one signing share.
+
+Wallets SHOULD NOT store or transmit a string encrypted only under public-key
+encryption based on discrete logarithms, such as Orchard note encryption,
+X25519, or elliptic-curve OpenPGP keys.
+
 
 # Rationale
 
@@ -279,9 +289,9 @@ above, in a version 1 string.
 can paste or show as a QR code. An uppercase string fits the QR alphanumeric
 mode, which makes the code smaller. Its checksum guarantees the detection of
 any error affecting at most 4 characters only for strings of at most 90
-characters [^zip-0173] [^bip-0350]. A version 1 string is 123 characters long, so it keeps
-the 30-bit checksum without that guarantee, as unified addresses and viewing
-keys do [^zip-0316].
+characters [^zip-0173] [^bip-0350]. A version 1 string is 123 characters
+long, so it keeps the 30-bit checksum without that guarantee, as unified
+addresses and viewing keys do [^zip-0316].
 
 **No network in the string.** A member's share is the same on every network
 the group lives on. The viewing key carries the network.
@@ -320,17 +330,14 @@ notes that "a quantum adversary may be able to steal the funds with only
 access to $\mathsf{qsk}$, which is held by every participant"
 [^zip-2005-usagewithfrost]. Against such an adversary the threshold may give no
 protection: one leaked string, from any member, may be enough to steal the
-funds.
-ZIP 2005 requires each participant to "treat $\mathsf{qsk}$ as a secret held
-at least as securely and reliably as $\mathsf{ask}$"
-[^zip-2005-usagewithfrost]. Wallets MUST protect every string the same way,
-and not merely like one signing share.
+funds. ZIP 2005 requires each participant to "treat $\mathsf{qsk}$ as a
+secret held at least as securely and reliably as $\mathsf{ask}$"
+[^zip-2005-usagewithfrost], which is why [Storage and transmission] asks the
+same for every string.
 
 For the same reason, a string that is stored or sent encrypted only under
-public-key encryption based on discrete logarithms (Orchard note encryption,
-X25519, or elliptic-curve OpenPGP keys, for example) should be treated as
-exposed to an adversary who records the ciphertext now and gains a quantum
-computer later. Wallets SHOULD NOT transmit or store the string that way; a
+public-key encryption based on discrete logarithms is exposed to an adversary
+who records the ciphertext now and gains a quantum computer later. A
 passphrase with a memory-hard KDF and an AEAD (see [Open issues]) does not
 have this weakness.
 
@@ -366,9 +373,9 @@ The full set is in `draft-khadim-aryaethn-frost-member-backup/vectors.json`.
 It covers a 2-of-3 ZIP 2005 group, a 2-of-3 legacy group together with the
 ZIP 2005 viewing key built from the same $\mathsf{sk}$ and $\mathsf{ak}$ (whose
 strings restore under either key, with a different derivation), and a 3-of-5
-ZIP 2005 group; an uppercase string; thirteen strings that decoders MUST
+ZIP 2005 group; an uppercase string; thirteen strings that decoders must
 reject; and a valid string paired with another group's viewing key, which the
-restore MUST reject.
+restore must reject.
 
 Every valid string decodes to the same fields and matches the stated
 derivation with Zkool's code, every invalid string is rejected by it, and
@@ -418,9 +425,9 @@ One member of the 2-of-3 ZIP 2005 group (byte strings in hex):
   $\mathsf{nk}$ and $\mathsf{rivk}$. A version 2 would carry the raw 96-byte
   Orchard full viewing key rather than its unified encoding, so that the
   string stays network-agnostic. With the viewing key in the string, nothing
-  outside it is left to mismatch. For a group with $\mathsf{sk}$, $\mathsf{ak}$ is enough, since
-  $\mathsf{nk}$ and $\mathsf{rivk}$ follow from $\mathsf{sk}$ and
-  $\mathsf{ak}$. A string for a group with no $\mathsf{sk}$ would be about 230
+  outside it is left to mismatch. For a group with $\mathsf{sk}$,
+  $\mathsf{ak}$ is enough, since $\mathsf{nk}$ and $\mathsf{rivk}$ follow from
+  $\mathsf{sk}$ and $\mathsf{ak}$. A string for a group with no $\mathsf{sk}$ would be about 230
   characters long, or 280 with a 32-byte identifier (see [Rationale] on
   Bech32m).
 - **Passphrase profile.** An optional version encrypting the payload with a
