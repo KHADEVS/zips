@@ -279,7 +279,7 @@ above, in a version 1 string.
 can paste or show as a QR code. An uppercase string fits the QR alphanumeric
 mode, which makes the code smaller. Its checksum guarantees the detection of
 any error affecting at most 4 characters only for strings of at most 90
-characters [^zip-0173]. A version 1 string is 123 characters long, so it keeps
+characters [^zip-0173] [^bip-0350]. A version 1 string is 123 characters long, so it keeps
 the 30-bit checksum without that guarantee, as unified addresses and viewing
 keys do [^zip-0316].
 
@@ -417,8 +417,8 @@ One member of the 2-of-3 ZIP 2005 group (byte strings in hex):
   For a group with no $\mathsf{sk}$, the viewing key is the only source of
   $\mathsf{nk}$ and $\mathsf{rivk}$. A version 2 would carry the raw 96-byte
   Orchard full viewing key rather than its unified encoding, so that the
-  string stays network-agnostic, and nothing outside the string is left to
-  mismatch. For a group with $\mathsf{sk}$, $\mathsf{ak}$ is enough, since
+  string stays network-agnostic. With the viewing key in the string, nothing
+  outside it is left to mismatch. For a group with $\mathsf{sk}$, $\mathsf{ak}$ is enough, since
   $\mathsf{nk}$ and $\mathsf{rivk}$ follow from $\mathsf{sk}$ and
   $\mathsf{ak}$. A string for a group with no $\mathsf{sk}$ would be about 230
   characters long, or 280 with a 32-byte identifier (see [Rationale] on
