@@ -317,7 +317,10 @@ access to $\mathsf{qsk}$, which is held by every participant"
 [^zip-2005-usagewithfrost]. Against such an adversary the threshold may give no
 protection: one leaked string, from any member, may be enough to steal the
 funds.
-Wallets MUST protect the string at least as well as the signing share.
+ZIP 2005 requires each participant to "treat $\mathsf{qsk}$ as a secret held
+at least as securely and reliably as $\mathsf{ask}$"
+[^zip-2005-usagewithfrost]. Wallets MUST protect every string the same way,
+and not merely like one signing share.
 
 For the same reason, a string that is stored or sent encrypted only under
 public-key encryption based on discrete logarithms (Orchard note encryption,
@@ -397,8 +400,18 @@ One member of the 2-of-3 ZIP 2005 group (byte strings in hex):
 - **Explicit derivation.** A version 2 could record the derivation, so a
   restore does not depend on trying each one, and a third derivation could be
   added without ambiguity.
+- **Groups with no $\mathsf{sk}$.** zcash-sign's `generate`, which Konclave
+  uses, derives $\mathsf{nk}$ and $\mathsf{rivk}$ from a random $\mathsf{sk}$
+  and then discards it, so version 1 cannot hold its groups. A version 2 could
+  record that $\mathsf{nk}$ and $\mathsf{rivk}$ come from the viewing key,
+  leave $\mathsf{sk}$ out, and carry $\mathsf{ak}$ for the restore to check
+  against the viewing key (suggested in zcash/zips#1413). That check catches a
+  viewing key from another group, but not a different viewing key for the
+  same group. Such groups are not quantum recoverable under ZIP 2005.
 - **$\mathsf{ak}$ or the viewing key in the string**, so that a restore needs
-  only the string.
+  only the string. For a group with no $\mathsf{sk}$, the viewing key is the
+  only source of $\mathsf{nk}$ and $\mathsf{rivk}$, so a string without it
+  restores nothing on its own.
 - **Passphrase profile.** An optional version encrypting the payload with a
   memory-hard KDF and an AEAD, as Zafe does for its backups.
 - **Human-readable part.** `zkfrost` is kept for compatibility with existing
