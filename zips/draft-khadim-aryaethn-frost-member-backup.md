@@ -367,10 +367,10 @@ This ZIP changes no consensus rule. Wallets can adopt it at any time.
 
 - Zkool: `rust/src/frost/backup.rs` in hhanh00/zkool2, released in Zkool
   6.35.0 [^zkool-backup].
-- frost-zec: `src/backup.rs` in OpenPGP-Wallet/frost-zec, written from this
-  ZIP's rules apart from Zkool's code, with `backup export` and
-  `backup restore` commands [^frost-zec-backup]. Its `tools/zip-vectors`
-  generates the test vectors below.
+- frost-zec: `src/backup.rs` in OpenPGP-Wallet/frost-zec, by one of this
+  ZIP's owners, written from this ZIP's rules apart from Zkool's code, with
+  `backup export` and `backup restore` commands [^frost-zec-backup]. Its
+  `tools/zip-vectors` generates the test vectors below.
 
 
 # Test vectors
@@ -390,9 +390,9 @@ Zkool's code rejects every invalid string except the two padding cases: Zkool
 6.35.0 does not check the padding bits, and decodes those two strings to the
 same fields as the valid string they come from. A third decoder, with the
 derivations written directly from BIP 350, ZIP 316 and ZIP 2005 and no Zcash
-library, gives the same results for every valid string, both viewing keys of
-each group, and the thirteen other rejected cases. With frost-client's version of `reddsa`, every
-$t$-subset also rebuilds $\mathsf{ak}$ and signs.
+library, gives the expected result for every string, both viewing keys of
+each group, and every rejected case. With frost-client's version of `reddsa`,
+every $t$-subset also rebuilds $\mathsf{ak}$ and signs.
 
 One member of the 2-of-3 ZIP 2005 group (byte strings in hex):
 
@@ -436,9 +436,15 @@ One member of the 2-of-3 ZIP 2005 group (byte strings in hex):
   string stays network-agnostic. With the viewing key in the string, nothing
   outside it is left to mismatch. For a group with $\mathsf{sk}$,
   $\mathsf{ak}$ is enough, since $\mathsf{nk}$ and $\mathsf{rivk}$ follow from
-  $\mathsf{sk}$ and $\mathsf{ak}$. A string for a group with no $\mathsf{sk}$ would be about 230
-  characters long, or 280 with a 32-byte identifier (see [Rationale] on
-  Bech32m).
+  $\mathsf{sk}$ and $\mathsf{ak}$. A string for a group with no
+  $\mathsf{sk}$ would be about 230 characters long, or 280 with a 32-byte
+  identifier (see [Rationale] on Bech32m).
+- **Birthday height in version 2.** A raw Orchard full viewing key does not
+  carry the birthday height that zips#1401 would add to the unified encoding
+  [^zips-1401], so a string that restores on its own would need a birthday
+  field of its own, as Konclave noted in zcash/zips#1413. A height only means
+  something on one network, so the field would either name the network or
+  apply to the network the wallet restores on.
 - **Passphrase profile.** An optional version encrypting the payload with a
   memory-hard KDF and an AEAD, as Zafe does for its backups.
 - **Human-readable part.** `zkfrost` is kept for compatibility with existing
