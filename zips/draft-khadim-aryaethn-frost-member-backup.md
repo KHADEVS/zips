@@ -388,11 +388,12 @@ derivation with Zkool's code, and every $t$-subset of members restored from
 their strings produces a FROST signature that verifies under $\mathsf{ak}$.
 Zkool's code rejects every invalid string except the two padding cases: Zkool
 6.35.0 does not check the padding bits, and decodes those two strings to the
-same fields as the valid string they come from. A third decoder, with the
-derivations written directly from BIP 350, ZIP 316 and ZIP 2005 and no Zcash
-library, gives the expected result for every string, both viewing keys of
-each group, and every rejected case. With frost-client's version of `reddsa`,
-every $t$-subset also rebuilds $\mathsf{ak}$ and signs.
+same fields as the valid string they come from. A third decoder, by the other
+owner of this ZIP, with the derivations written directly from BIP 350, ZIP 316
+and ZIP 2005 and no Zcash library, gives the expected result for every
+string, both viewing keys of each group, and every rejected case. With
+frost-client's version of `reddsa`, every $t$-subset also rebuilds
+$\mathsf{ak}$ and signs.
 
 One member of the 2-of-3 ZIP 2005 group (byte strings in hex):
 
