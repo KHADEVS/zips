@@ -388,12 +388,13 @@ derivation with Zkool's code, and every $t$-subset of members restored from
 their strings produces a FROST signature that verifies under $\mathsf{ak}$.
 Zkool's code rejects every invalid string except the two padding cases: Zkool
 6.35.0 does not check the padding bits, and decodes those two strings to the
-same fields as the valid string they come from. A third decoder, by the other
-owner of this ZIP, with the derivations written directly from BIP 350, ZIP 316
-and ZIP 2005 and no Zcash library, gives the expected result for every
-string, both viewing keys of each group, and every rejected case. With
-frost-client's version of `reddsa`, every $t$-subset also rebuilds
-$\mathsf{ak}$ and signs.
+same fields as the valid string they come from. This is fixed in
+hhanh00/zkool2#1468 [^zkool-padding-fix] and will be in Zkool's next release.
+A third decoder, by the other owner of this ZIP, with the derivations written
+directly from BIP 350, ZIP 316 and ZIP 2005 and no Zcash library, gives the
+expected result for every string, both viewing keys of each group, and every
+rejected case. With frost-client's version of `reddsa`, every $t$-subset also
+rebuilds $\mathsf{ak}$ and signs.
 
 One member of the 2-of-3 ZIP 2005 group (byte strings in hex):
 
@@ -477,6 +478,8 @@ One member of the 2-of-3 ZIP 2005 group (byte strings in hex):
 [^zkool-forum]: [Hanh, Zcash Community Forum, 2026-07-15](https://forum.zcashcommunity.com/t/56660/5)
 
 [^zkool-backup]: [Zkool: the zkfrost member backup string](https://github.com/hhanh00/zkool2/blob/4ad5a89e09e939a415dd7376ec94f0a241f98c8c/rust/src/frost/backup.rs)
+
+[^zkool-padding-fix]: [hhanh00/zkool2#1468: Bech32 decoders reject non-canonical padding](https://github.com/hhanh00/zkool2/pull/1468)
 
 [^zips-1401]: [zcash/zips#1401: Assign a Metadata Typecode for viewing key birthday height](https://github.com/zcash/zips/issues/1401)
 
